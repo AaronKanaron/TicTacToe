@@ -6,7 +6,7 @@ use std::io::stdin;
 
 /*- Constants -*/
 const SIZE: usize = 3;
-
+const WINLENGTH: usize = 5;
 /*- Structs, enums & unions -*/
 struct Board { cells: Vec<Vec<u16>> }
 // #[derive(Debug)]
@@ -29,15 +29,21 @@ fn game_loop(board: &mut Board) {
         input.clear();
         stdin().read_line(&mut input).expect("Failed to read input");
         let input: Vec<&str> = input.trim().split(',').collect();
-        let x = input[0].trim().parse::<usize>().expect("Failed to parse input");
-        let y = input[1].trim().parse::<usize>().expect("Failed to parse input");
-        if board.verify_move(x-1, y-1) {
-            board.set_tile(x-1, y-1, 1, false);
+        let x: usize = input[0].trim().parse::<usize>().expect("Failed to parse input") - 1;
+        let y: usize = input[1].trim().parse::<usize>().expect("Failed to parse input") - 1;
+        if board.verify_move(x, y) {
+            board.set_tile(x, y, 1, false);
+            //run win check, origin_tile_type means you need to get the tile that it is on the board
+            //win check takes current_cordinate, orgigin_cordinate and tile_type
+            let tile = *board.get_tile(x, y);
+            board.win_check((x, y), (x, y), tile);
+
             board.print_board();
         }
     }
     
 }
+
 
 /*- Method implementations - */
 impl Board {
@@ -65,12 +71,18 @@ impl Board {
         }
     }
 
+    pub fn win_check(&mut self, current_tile_coordinate: (usize, usize), origin_tile_coordinate: (usize, usize), origin_tile_type: u16) {
+        // println!("Data\n CTC: {:?}\nOTC: {:?}\nOTT: {:?}", current_tile_coordinate, origin_tile_coordinate, origin_tile_type);
+        //win algorithm
+        
+    }
+
     //exception (override) doesnt matter what is there
-    pub fn set_tile(&mut self, x: usize, y: usize, value: u16, exception: bool) {
+    pub fn set_tile(&mut self, x: usize, y: usize, value: u16, r#override: bool) {
         match self.cells.get_mut(x) {
             Some(row) => match row.get_mut(y) {
                 Some(cell) => {
-                    if *cell == 0 || exception == true {
+                    if *cell == 0 || r#override == true {
                         *cell = value;
                     }
                     else {

@@ -85,7 +85,7 @@ impl Board {
     pub fn print_board(&mut self) {
         for (row_i, row) in &mut self.cells.iter().enumerate() {
             if row_i > 0 {
-                println!("---+---+---");
+                println!("{}---","---+".repeat(SIZE-1));
             }
             for (cell_i, cell) in row.iter().enumerate() {
                 if cell_i > 0 { print!(" |"); }
